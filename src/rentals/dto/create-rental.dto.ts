@@ -1,9 +1,33 @@
 import { IsNotEmpty, IsNumberString, IsDateString } from 'class-validator';
+// import { Transform } from 'class-transformer'
 
 export class CreateRentalDto {
   @IsNotEmpty()
   @IsDateString()
   rental_date: Date;
+  // exemple a investiguer
+  // @IsOptional()
+  // @IsString()
+  // @MaxLength(50)
+  // @Transform(({ value }) => value || 'Default Name')
+  // name: string = 'Default Name';
+
+  // @IsOptional()
+  // @IsNumber()
+  // @Min(0)
+  // @Transform(({ value }) => {
+  //   if (value === undefined || isNaN(value) || value < 0) {
+  //     return 0;
+  //   }
+  //   return value;// })
+  // age: number = 0;
+  //   @Transform(({ value }) => {
+  //     if (typeof value === 'string' && value.length >= 5) {
+  //       return value;
+  //     }
+  //     return 'Default';
+  //   })
+  //description: string = 'Default';
 
   @IsNumberString()
   film_id: number;
