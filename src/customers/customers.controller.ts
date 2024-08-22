@@ -7,9 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { Customer } from 'src/entities/Customer.entity';
+import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -28,14 +31,14 @@ export class CustomersController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateData: Partial<Customer>,
+    @Body(ValidationPipe) UpdateCustomerDto: UpdateCustomerDto,
   ): Promise<Customer> {
-    return this.customersService.update(id, updateData);
+    return this.customersService.update(id, UpdateCustomerDto);
   }
 
   @Post()
-  async create(@Body() customer: Customer) {
-    return await this.customersService.create(customer);
+  async create(@Body(ValidationPipe) CreateCustomerDto: CreateCustomerDto) {
+    return await this.customersService.create(CreateCustomerDto);
   }
 
   @Delete(':id')

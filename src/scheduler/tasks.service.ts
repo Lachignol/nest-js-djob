@@ -130,11 +130,11 @@ export class TasksService {
     });
   }
 
-  private async getRentalsDueForNotification(): Promise<Rental[]> {
+  private getRentalsDueForNotification(): Promise<Rental[]> {
     this.logger.debug(
       'Exécution de la requête pour récupérer les locations...',
     );
-    return await this.rentalRepository
+    return this.rentalRepository
       .createQueryBuilder('rental')
       .leftJoinAndSelect('rental.customer', 'customer')
       .where('rental.return_date > NOW()')

@@ -1,0 +1,13 @@
+
+p-probleme a la connexion de la bdd
+r-j'ai du supprimer les views de la table pg car conflit avec mes controller:
+DROP VIEW customer_list;
+DROP VIEW film_list;
+DROP VIEW nicer_but_slower_film_list;
+DROP VIEW sales_by_film_category;
+DROP VIEW sales_by_store;
+DROP VIEW staff_list;
+
+
+
+faire attention au wrapping async en gros appel de fonction async retournant une promesse dans une autre fonction qui execute un await en attendant une autre promesse.
