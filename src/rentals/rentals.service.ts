@@ -31,35 +31,9 @@ export class RentalsService {
   }
 
   async create(CreateRentalDto: CreateRentalDto): Promise<Rental> {
-    // const rental = this.rentalsRepository.create(CreateRentalDto);
-    // voir la logigue dans le dto pour gerer le cas de la date etc
-    // rental.rental_date = new Date();
-
-    // const dateOfReturnMin = new Date(rental.rental_date);
-    // dateOfReturnMin.setDate(dateOfReturnMin.getDate() + 7);
-
-    // const dateOfReturnMax = new Date(rental.rental_date);
-    // dateOfReturnMax.setDate(dateOfReturnMax.getDate() + 21);
-
-    // // Vérification si l'utilisateur a donné une date de retour
-    // if (rentalData.return_date) {
-    //   const ReturnDate = new Date(rentalData.return_date);
-
-    //   if (ReturnDate < dateOfReturnMin) {
-    //     throw new BadRequestException(
-    //       "La date de retour est au minimum d'une semaine après la date de location.",
-    //     );
-    //   }
-    //   if (ReturnDate > dateOfReturnMax) {
-    //     throw new BadRequestException(
-    //       'La date de retour est au maximim de trois semaines après la date de location.',
-    //     );
-    //   }
-    //   rental.return_date = ReturnDate;
-    // } else {
-    //   // Par default on fixe la date de retour a 1 semaine si aucune date de retour n'est fourni
-    //   rental.return_date = dateOfReturnMin;
-    // }
+    // Dans ma dto je check si la date de retour rentré est inferieur a 7 jours (qui est la date minimum de location si cela
+    //n'est pas le cas je rentre donc la date mininum) et si la date est superieur a la date maximim je rentre la date maximum.
+    // et par default on fixe la date de retour a 1 semaine si aucune date de retour n'est fourni
     return await this.rentalsRepository.save(CreateRentalDto);
   }
 

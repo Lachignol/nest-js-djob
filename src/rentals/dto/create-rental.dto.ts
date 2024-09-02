@@ -22,7 +22,7 @@ export class CreateRentalDto {
     const datelimit = addDays(currentDate, 21);
     const minimDate = addDays(currentDate, 7);
 
-    if (inputdate < minimDate) {
+    if (inputdate < minimDate || !value) {
       console.log(minimDate);
       return minimDate.toISOString();
     }
@@ -59,10 +59,6 @@ export class CreateRentalDto {
 
   @IsNumberString()
   customer_id: number;
-
-  //trouvez solution pour si pas de valeur de retour trouvé mettre un minimum de 7 jour a partir de la date actuelle
-  //et si la date rentré est superieur a plus de 21 jours ne pas accepter ou je sais pas
-  //return_date: Date | null;
 
   @IsNumberString()
   staff_id: number;

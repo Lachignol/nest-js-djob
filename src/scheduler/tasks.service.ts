@@ -15,15 +15,31 @@ export class TasksService {
     private rentalRepository: Repository<Rental>,
   ) {}
 
-  @Cron('0 0 * * *') // Exécute tous les jours à minuit
-  async handleCron() {
+  @Cron('0 12 * * *') // Exécute tous les jours à midi celle fonction sert juste pour tester puisque je defini automatiquement un minimum de 7 jours de location si on me rentre une date inferieur.
+  async sendNotificationForRentals7dayBefore() {
     this.logger.debug('Vérification des locations pour les notifications...');
-    await this.sendNotifications();
+    await this.sendNotifications(7);
+    this.logger.log('Notifications planifiées.');
+  }
+
+  @Cron('0 12 * * *') // Exécute tous les jours à midi
+  async sendNotificationForRentals5dayBefore() {
+    this.logger.debug('Vérification des locations pour les notifications...');
+    await this.sendNotifications(5);
+    this.logger.log('Notifications planifiées.');
+  }
+
+  @Cron('0 12 * * *') // Exécute tous les jours à midi definir un intervalle par rapport a la premier cron
+  async sendNotificationForRentals3dayBefore() {
+    this.logger.debug('Vérification des locations pour les notifications...');
+    await this.sendNotifications(3);
     this.logger.log('Notifications planifiées.');
   }
 
   runTaskManually() {
-    this.handleCron();
+    this.sendNotificationForRentals7dayBefore();
+    this.sendNotificationForRentals5dayBefore();
+    this.sendNotificationForRentals3dayBefore();
   }
 
   //Fonction pour recupéré tous les rental a j-5 ou j-3 ou peu importe jour j voulu a mettre en paramètre//
@@ -43,9 +59,11 @@ export class TasksService {
       .getMany();
   }
 
-  async sendNotifications() {
+  async sendNotifications(numberOfDayBeforLimit: number) {
     this.logger.debug('Récupération des locations à notifier...');
-    const rentals = await this.getRentalsByDayBeforeLimitOF(5);
+    const rentals = await this.getRentalsByDayBeforeLimitOF(
+      numberOfDayBeforLimit,
+    );
     this.logger.debug(`Nombre de locations à notifier: ${rentals.length}`);
     rentals.forEach((rental) => {
       const email = rental.customer?.email;
@@ -57,9 +75,11 @@ export class TasksService {
       }
       const returnDate = new Date(rental.return_date);
       this.logger.debug(
-        `Date de retour pour la location ${rental.rental_id}: ${returnDate}`,
+        `Date de retour pour la location ${rental.rental_id}: ${returnDate.toUTCString()}`,
       );
-      //ecrire en gros les logs pour simuler un mail voir peu etre les fonction commenté plus bas pour s'inspiré
+      this.logger.verbose(
+        `@mail envoyé à <${email}> :Objet - Il vous reste seulement ${numberOfDayBeforLimit} jours avant de devoir rendre votre location.`,
+      );
     });
   }
 
@@ -103,129 +123,5 @@ export class TasksService {
       );
       return `Aucune tâche ne porte ce nom`;
     }
-  }
-
-  // async scheduleNotifications() {
-  //   this.logger.debug('Nettoyage des anciennes notifications...');
-  //   this.cleanupOldNotifications();
-  //   this.logger.debug('Récupération des locations à notifier...');
-  //   const rentals = await this.getRentalsDueForNotification();
-
-  //   this.logger.debug(`Nombre de locations à notifier: ${rentals.length}`);
-  //   rentals.forEach((rental) => {
-  //     const email = rental.customer?.email;
-  //     if (!email) {
-  //       this.logger.warn(
-  //         `Email manquant pour la location ID: ${rental.rental_id}`,
-  //       );
-  //       return;
-  //     }
-
-  //     const returnDate = new Date(rental.return_date);
-  //     this.logger.debug(
-  //       `Date de retour pour la location ${rental.rental_id}: ${returnDate}`,
-  //     );
-
-  //     const now = new Date();
-  //     const fiveDaysBefore = new Date(returnDate);
-  //     fiveDaysBefore.setDate(returnDate.getDate() - 5);
-  //     fiveDaysBefore.setHours(12, 0, 0, 0); // Fixe l'heure à midi
-
-  //     const threeDaysBefore = new Date(returnDate);
-  //     threeDaysBefore.setDate(returnDate.getDate() - 3);
-  //     threeDaysBefore.setHours(12, 0, 0, 0); // Fixe l'heure à midi
-
-  //     this.logger.debug(
-  //       `Date J-5: ${fiveDaysBefore}, Date J-3: ${threeDaysBefore}`,
-  //     );
-
-  //     if (fiveDaysBefore > now) {
-  //       this.scheduleLogNotification(
-  //         email,
-  //         'Rappel de location à J-5',
-  //         'Votre retour est prévu dans 5 jours.',
-  //         fiveDaysBefore,
-  //       );
-  //     } else {
-  //       this.logger.warn(
-  //         `La date J-5 est déjà passée pour la location ${rental.rental_id}`,
-  //       );
-  //     }
-
-  //     if (threeDaysBefore > now) {
-  //       this.scheduleLogNotification(
-  //         email,
-  //         'Rappel de location à J-3',
-  //         'Votre retour est prévu dans 3 jours.',
-  //         threeDaysBefore,
-  //       );
-  //     } else {
-  //       this.logger.warn(
-  //         `La date J-3 est déjà passée pour la location ${rental.rental_id}`,
-  //       );
-  //     }
-  //   });
-  // }
-
-  // private getRentalsDueForNotification(): Promise<Rental[]> {
-  //   this.logger.debug(
-  //     'Exécution de la requête pour récupérer les locations...',
-  //   );
-  //   return this.rentalRepository
-  //     .createQueryBuilder('rental')
-  //     .leftJoinAndSelect('rental.customer', 'customer')
-  //     .where('rental.return_date > NOW()')
-  //     .andWhere("rental.return_date <= NOW() + INTERVAL '5 days'")
-  //     .getMany();
-  // }
-
-  // private scheduleLogNotification(
-  //   email: string,
-  //   subject: string,
-  //   text: string,
-  //   date: Date,
-  // ) {
-  //   const jobName = `notify-${email}-${date.toISOString()}`;
-
-  //   if (this.schedulerRegistry.doesExist('cron', jobName)) {
-  //     this.schedulerRegistry.deleteCronJob(jobName);
-  //     this.logger.warn(`Tâche existante supprimée: ${jobName}`);
-  //   }
-
-  //   const job = new CronJob(
-  //     date,
-  //     () => {
-  //       this.logger.log(`Notification pour ${email}: ${subject} - ${text}`);
-  //       this.schedulerRegistry.deleteCronJob(jobName);
-  //     },
-  //     null,
-  //     true,
-  //     null, // Utiliser le fuseau horaire local du client pour le job cron
-  //   );
-
-  //   try {
-  //     this.schedulerRegistry.addCronJob(jobName, job);
-  //     job.start();
-  //     this.logger.log(
-  //       `Nouvelle tâche de notification planifiée: ${jobName} pour ${date.toISOString()}`,
-  //     );
-  //   } catch (error) {
-  //     this.logger.error(
-  //       `Erreur lors de la planification de la notification: ${error.message}`,
-  //     );
-  //   }
-  // }
-
-  private cleanupOldNotifications() {
-    const jobs = this.schedulerRegistry.getCronJobs();
-    jobs.forEach((job, name) => {
-      if (
-        name.startsWith('notify-') &&
-        job.nextDate().toJSDate() < new Date()
-      ) {
-        this.schedulerRegistry.deleteCronJob(name);
-        this.logger.log(`Ancienne tâche de notification supprimée: ${name}`);
-      }
-    });
   }
 }

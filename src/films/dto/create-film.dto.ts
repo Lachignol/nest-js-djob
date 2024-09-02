@@ -7,31 +7,9 @@ export class CreateFilmDto {
 
   @IsString()
   description: string;
-  //   @IsOptional()
-  //   @ValidateIf((o) => o.description !== undefined && o.description !== '')
-  //   @IsString()
-  //   description?: string;
-
-  //   @IsOptional()
-  //   @ValidateIf((o) => o.release_year !== undefined && o.release_year !== '')
-  //   @IsNumberString()
-  //   release_year?: string;
 
   @IsNumberString()
   language_id: number;
-
-  //   @IsOptional()
-  //   @ValidateIf(
-  //     (o) =>
-  //       o.original_language_id !== undefined && o.original_language_id !== '',
-  //   )
-  //   @IsNumberString()
-  //   original_language_id?: number;
-
-  //   @IsOptional()
-  //   @ValidateIf((o) => o.rental_rate !== undefined && o.rental_rate !== '')
-  //   @IsNumberString()
-  //   rental_rate?: number;
 }
 
 /*
