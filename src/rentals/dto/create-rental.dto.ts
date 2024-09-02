@@ -1,15 +1,40 @@
-import { IsNotEmpty, IsNumberString, IsDateString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
+import { addDays } from 'date-fns';
 // import { Transform } from 'class-transformer'
 
 export class CreateRentalDto {
   @IsNotEmpty()
   @IsDateString()
   rental_date: Date;
+
+  @IsOptional()
+  @IsDateString()
+  @Transform(({ value }) => {
+    const currentDate = new Date();
+    console.log(currentDate);
+    const inputdate = new Date(value);
+    const datelimit = addDays(currentDate, 21);
+    const minimDate = addDays(currentDate, 7);
+
+    if (inputdate < minimDate) {
+      console.log(minimDate);
+      return minimDate.toISOString();
+    }
+    if (inputdate > datelimit) {
+      console.log(datelimit);
+      return datelimit.toISOString();
+    }
+    console.log(value);
+    return value;
+  })
+  return_date: Date;
   // exemple a investiguer
-  // @IsOptional()
-  // @IsString()
-  // @MaxLength(50)
-  // @Transform(({ value }) => value || 'Default Name')
   // name: string = 'Default Name';
 
   // @IsOptional()
